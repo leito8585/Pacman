@@ -46,6 +46,32 @@ class Spieler {
   }
 }
 
+class Geist {
+  static speed = 2;
+  constructor({ position, velocity, color = "red" }) {
+    this.position = position;
+    this.velocity = velocity;
+    this.radius = 15;
+    this.color = color;
+    this.prevCollisions = [];
+    this.speed = 2;
+  }
+
+  draw() {
+    context.beginPath();
+    context.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+    context.fillStyle = this.color;
+    context.fill();
+    context.closePath();
+  }
+
+  update() {
+    this.draw();
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+  }
+}
+
 class Pille {
   constructor({ position }) {
     this.position = position;
@@ -63,6 +89,29 @@ class Pille {
 
 const pillen = [];
 const grenzen = [];
+const geister = [
+  new Geist({
+    position: {
+      x: Grenze.width * 6 + Grenze.width / 2,
+      y: Grenze.height + Grenze.height / 2,
+    },
+    velocity: {
+      x: Geist.speed,
+      y: 0,
+    },
+  }),
+  new Geist({
+    position: {
+      x: Grenze.width * 6 + Grenze.width / 2,
+      y: Grenze.height * 4 + Grenze.height / 2,
+    },
+    velocity: {
+      x: -Geist.speed,
+      y: 0,
+    },
+    color: "pink",
+  }),
+];
 const spieler = new Spieler({
   position: {
     x: Grenze.width + Grenze.width / 2,
@@ -308,20 +357,23 @@ map.forEach((row, i) => {
 });
 
 function circleCollidesWithRectangle({ circle, rectangle }) {
+  const padding = Grenze.width / 2 - circle.radius - 1;
   return (
     circle.position.y - circle.radius + circle.velocity.y <=
-      rectangle.position.y + rectangle.height &&
+      rectangle.position.y + rectangle.height + padding &&
     circle.position.x + circle.radius + circle.velocity.x >=
-      rectangle.position.x &&
+      rectangle.position.x - padding &&
     circle.position.y + circle.radius + circle.velocity.y >=
-      rectangle.position.y &&
+      rectangle.position.y - padding &&
     circle.position.x - circle.radius + circle.velocity.x <=
-      rectangle.position.x + rectangle.width
+      rectangle.position.x + rectangle.width + padding
   );
 }
 
+let animationId;
+
 function animate() {
-  requestAnimationFrame(animate);
+  animationId = requestAnimationFrame(animate);
   context.clearRect(0, 0, canvas.width, canvas.height);
 
   if (keys.w.pressed && lastKey === "w") {
@@ -412,8 +464,98 @@ function animate() {
 
   spieler.update();
 
-  //spieler.velocity.x = 0;
-  //spieler.velocity.y = 0;
+  geister.forEach((geist) => {
+    geist.update();
+
+    if (
+      Math.hypot(
+        geist.position.x - spieler.position.x,
+        geist.position.y - spieler.position.y
+      ) <
+      geist.radius + spieler.radius
+    ) {
+      cancelAnimationFrame(animationId);
+    }
+
+    const kollisionen = [];
+    grenzen.forEach((grenze) => {
+      if (
+        !kollisionen.includes("right") &&
+        circleCollidesWithRectangle({
+          circle: { ...geist, velocity: { x: geist.speed, y: 0 } },
+          rectangle: grenze,
+        })
+      ) {
+        kollisionen.push("right");
+      }
+
+      if (
+        !kollisionen.includes("left") &&
+        circleCollidesWithRectangle({
+          circle: { ...geist, velocity: { x: -geist.speed, y: 0 } },
+          rectangle: grenze,
+        })
+      ) {
+        kollisionen.push("left");
+      }
+
+      if (
+        !kollisionen.includes("down") &&
+        circleCollidesWithRectangle({
+          circle: { ...geist, velocity: { x: 0, y: geist.speed } },
+          rectangle: grenze,
+        })
+      ) {
+        kollisionen.push("down");
+      }
+
+      if (
+        !kollisionen.includes("up") &&
+        circleCollidesWithRectangle({
+          circle: { ...geist, velocity: { x: 0, y: -geist.speed } },
+          rectangle: grenze,
+        })
+      ) {
+        kollisionen.push("up");
+      }
+    });
+    if (kollisionen.length > geist.prevCollisions.length)
+      geist.prevCollisions = kollisionen;
+
+    if (JSON.stringify(kollisionen) !== JSON.stringify(geist.prevCollisions)) {
+      if (geist.velocity.x > 0) geist.prevCollisions.push("right");
+      else if (geist.velocity.x < 0) geist.prevCollisions.push("left");
+      else if (geist.velocity.y > 0) geist.prevCollisions.push("down");
+      else if (geist.velocity.y < 0) geist.prevCollisions.push("up");
+
+      const patways = geist.prevCollisions.filter((kollision) => {
+        return !kollisionen.includes(kollision);
+      });
+
+      const direction = patways[Math.floor(Math.random() * patways.length)];
+
+      switch (direction) {
+        case "right":
+          geist.velocity.x = geist.speed;
+          geist.velocity.y = 0;
+          break;
+        case "left":
+          geist.velocity.x = -geist.speed;
+          geist.velocity.y = 0;
+          break;
+        case "up":
+          geist.velocity.x = 0;
+          geist.velocity.y = -geist.speed;
+          break;
+        case "down":
+          geist.velocity.x = 0;
+          geist.velocity.y = geist.speed;
+          break;
+      }
+
+      geist.prevCollisions = [];
+    }
+  });
 }
 
 animate();
