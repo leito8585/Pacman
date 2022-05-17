@@ -383,9 +383,20 @@ function animate() {
     }
   }
 
-  pillen.forEach((pille) => {
+  for (let i = pillen.length - 1; 0 < i; i--) {
+    const pille = pillen[i];
     pille.draw();
-  });
+    if (
+      Math.hypot(
+        pille.position.x - spieler.position.x,
+        pille.position.y - spieler.position.y
+      ) <
+      pille.radius + spieler.radius
+    ) {
+      pillen.splice(i, 1);
+    }
+  }
+
   grenzen.forEach((grenze) => {
     grenze.draw();
     if (circleCollidesWithRectangle({ circle: spieler, rectangle: grenze })) {
