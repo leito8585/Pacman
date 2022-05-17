@@ -7,15 +7,18 @@ canvas.height = innerHeight;
 class Grenze {
   static width = 40;
   static height = 40;
-  constructor({ position }) {
+  constructor({ position, image }) {
     this.position = position;
     this.width = 40;
     this.height = 40;
+    this.image = image;
   }
 
   draw() {
-    context.fillStyle = "blue";
-    context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    //context.fillStyle = "blue";
+    //context.fillRect(this.position.x, this.position.y, this.width, this.height);
+
+    context.drawImage(this.image, this.position.x, this.position.y);
   }
 }
 
@@ -68,14 +71,26 @@ const keys = {
 let lastKey = "";
 
 const map = [
-  ["-", "-", "-", "-", "-", "-", "-"],
-  ["-", " ", " ", " ", " ", " ", "-"],
-  ["-", " ", "-", " ", "-", " ", "-"],
-  ["-", " ", " ", " ", " ", " ", "-"],
-  ["-", " ", "-", " ", "-", " ", "-"],
-  ["-", " ", " ", " ", " ", " ", "-"],
-  ["-", "-", "-", "-", "-", "-", "-"],
+  ["1", "-", "-", "-", "-", "-", "-", "-", "-", "-", "2"],
+  ["|", ".", ".", ".", ".", ".", ".", ".", ".", ".", "|"],
+  ["|", ".", "b", ".", "[", "7", "]", ".", "b", ".", "|"],
+  ["|", ".", ".", ".", ".", "_", ".", ".", ".", ".", "|"],
+  ["|", ".", "[", "]", ".", ".", ".", "[", "]", ".", "|"],
+  ["|", ".", ".", ".", ".", "^", ".", ".", ".", ".", "|"],
+  ["|", ".", "b", ".", "[", "+", "]", ".", "b", ".", "|"],
+  ["|", ".", ".", ".", ".", "_", ".", ".", ".", ".", "|"],
+  ["|", ".", "[", "]", ".", ".", ".", "[", "]", ".", "|"],
+  ["|", ".", ".", ".", ".", "^", ".", ".", ".", ".", "|"],
+  ["|", ".", "b", ".", "[", "5", "]", ".", "b", ".", "|"],
+  ["|", ".", ".", ".", ".", ".", ".", ".", ".", "p", "|"],
+  ["4", "-", "-", "-", "-", "-", "-", "-", "-", "-", "3"],
 ];
+
+function createImage(src) {
+  const image = new Image();
+  image.src = src;
+  return image;
+}
 
 map.forEach((row, i) => {
   row.forEach((symbol, j) => {
@@ -87,6 +102,175 @@ map.forEach((row, i) => {
               x: Grenze.width * j,
               y: Grenze.height * i,
             },
+            image: createImage("./img/pipeHorizontal.png"),
+          })
+        );
+        break;
+      case "|":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: Grenze.width * j,
+              y: Grenze.height * i,
+            },
+            image: createImage("./img/pipeVertical.png"),
+          })
+        );
+        break;
+      case "1":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: Grenze.width * j,
+              y: Grenze.height * i,
+            },
+            image: createImage("./img/pipeCorner1.png"),
+          })
+        );
+        break;
+      case "2":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: Grenze.width * j,
+              y: Grenze.height * i,
+            },
+            image: createImage("./img/pipeCorner2.png"),
+          })
+        );
+        break;
+      case "3":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: Grenze.width * j,
+              y: Grenze.height * i,
+            },
+            image: createImage("./img/pipeCorner3.png"),
+          })
+        );
+        break;
+      case "4":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: Grenze.width * j,
+              y: Grenze.height * i,
+            },
+            image: createImage("./img/pipeCorner4.png"),
+          })
+        );
+        break;
+      case "b":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: Grenze.width * j,
+              y: Grenze.height * i,
+            },
+            image: createImage("./img/block.png"),
+          })
+        );
+        break;
+      case "[":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: j * Grenze.width,
+              y: i * Grenze.height,
+            },
+            image: createImage("./img/capLeft.png"),
+          })
+        );
+        break;
+      case "]":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: j * Grenze.width,
+              y: i * Grenze.height,
+            },
+            image: createImage("./img/capRight.png"),
+          })
+        );
+        break;
+      case "_":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: j * Grenze.width,
+              y: i * Grenze.height,
+            },
+            image: createImage("./img/capBottom.png"),
+          })
+        );
+        break;
+      case "^":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: j * Grenze.width,
+              y: i * Grenze.height,
+            },
+            image: createImage("./img/capTop.png"),
+          })
+        );
+        break;
+      case "+":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: j * Grenze.width,
+              y: i * Grenze.height,
+            },
+            image: createImage("./img/pipeCross.png"),
+          })
+        );
+        break;
+      case "5":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: j * Grenze.width,
+              y: i * Grenze.height,
+            },
+            color: "blue",
+            image: createImage("./img/pipeConnectorTop.png"),
+          })
+        );
+        break;
+      case "6":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: j * Grenze.width,
+              y: i * Grenze.height,
+            },
+            color: "blue",
+            image: createImage("./img/pipeConnectorRight.png"),
+          })
+        );
+        break;
+      case "7":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: j * Grenze.width,
+              y: i * Grenze.height,
+            },
+            color: "blue",
+            image: createImage("./img/pipeConnectorBottom.png"),
+          })
+        );
+        break;
+      case "8":
+        grenzen.push(
+          new Grenze({
+            position: {
+              x: j * Grenze.width,
+              y: i * Grenze.height,
+            },
+            image: createImage("./img/pipeConnectorLeft.png"),
           })
         );
         break;
