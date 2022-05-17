@@ -44,6 +44,22 @@ class Spieler {
   }
 }
 
+class Pille {
+  constructor({ position }) {
+    this.position = position;
+    this.radius = 3;
+  }
+
+  draw() {
+    context.beginPath();
+    context.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+    context.fillStyle = "white";
+    context.fill();
+    context.closePath();
+  }
+}
+
+const pillen = [];
 const grenzen = [];
 const spieler = new Spieler({
   position: {
@@ -274,6 +290,16 @@ map.forEach((row, i) => {
           })
         );
         break;
+      case ".":
+        pillen.push(
+          new Pille({
+            position: {
+              x: j * Grenze.width + Grenze.width / 2,
+              y: i * Grenze.height + Grenze.height / 2,
+            },
+          })
+        );
+        break;
     }
   });
 });
@@ -357,6 +383,9 @@ function animate() {
     }
   }
 
+  pillen.forEach((pille) => {
+    pille.draw();
+  });
   grenzen.forEach((grenze) => {
     grenze.draw();
     if (circleCollidesWithRectangle({ circle: spieler, rectangle: grenze })) {
