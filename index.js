@@ -1,6 +1,8 @@
 const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
 
+const punkteEl = document.querySelector("#punkteEl");
+
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -85,6 +87,7 @@ const keys = {
 };
 
 let lastKey = "";
+let punkte = 0;
 
 const map = [
   ["1", "-", "-", "-", "-", "-", "-", "-", "-", "-", "2"],
@@ -394,6 +397,8 @@ function animate() {
       pille.radius + spieler.radius
     ) {
       pillen.splice(i, 1);
+      punkte += 10;
+      punkteEl.innerHTML = punkte;
     }
   }
 
