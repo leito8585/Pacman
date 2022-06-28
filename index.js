@@ -483,6 +483,11 @@ function animate() {
       }
     }
   }
+
+  if (pillen.length === 0) {
+    cancelAnimationFrame(animationId)
+  }
+
   for (let i = powerUps.length - 1; 0 <= i; i--) {
     const powerUp = powerUps[i]
     powerUp.draw()
